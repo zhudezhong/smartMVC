@@ -1,6 +1,7 @@
 package com.scnu.smartmvc.hanler;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -35,6 +36,16 @@ public class HandlerMethod {
         for (int index = 0; index < parameterCount; index++) {
             this.parameters.add(new MethodParameter(method, index));
         }
+    }
+
+
+    public HandlerMethod(HandlerMethod handlerMethod) {
+        Assert.notNull(handlerMethod, "HandlerMethod is required");
+
+        this.bean = handlerMethod.bean;
+        this.beanType = handlerMethod.beanType;
+        this.method = handlerMethod.method;
+        this.parameters = handlerMethod.parameters;
     }
 
     public Object getBean() {

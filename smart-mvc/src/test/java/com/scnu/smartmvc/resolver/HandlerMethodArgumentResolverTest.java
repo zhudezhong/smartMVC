@@ -3,19 +3,17 @@ package com.scnu.smartmvc.resolver;
 import com.alibaba.fastjson.JSON;
 import com.scnu.smartmvc.BaseJunit4Test;
 import com.scnu.smartmvc.controller.TestController;
+import com.scnu.smartmvc.controller.TestInvocableHandlerMethodController;
 import com.scnu.smartmvc.controller.TestReturnValueController;
 import com.scnu.smartmvc.hanler.HandlerMethod;
+import com.scnu.smartmvc.hanler.InvocableHandlerMethod;
 import com.scnu.smartmvc.hanler.ModelAndViewContainer;
-import com.scnu.smartmvc.hanler.argument.HandlerMethodArgumentResolverComposite;
-import com.scnu.smartmvc.hanler.argument.RequestBodyMethodArgumentResolver;
-import com.scnu.smartmvc.hanler.argument.RequestParamMethodArgumentResolver;
-import com.scnu.smartmvc.hanler.argument.ServletRequestMethodArgumentResolver;
+import com.scnu.smartmvc.hanler.argument.*;
 import com.scnu.smartmvc.hanler.returnvalue.*;
 import com.scnu.smartmvc.view.View;
 import com.scnu.smartmvc.vo.UserVO;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
 import org.springframework.format.datetime.DateFormatter;
@@ -25,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Date;
 
@@ -119,6 +118,11 @@ public class HandlerMethodArgumentResolverTest extends BaseJunit4Test {
     }
 
 
+    /**
+     * 06 的测试用例
+     *
+     * @throws Exception
+     */
     @Test
     public void test3() throws Exception {
         HandlerMethodReturnValueHandlerComposite composite = new HandlerMethodReturnValueHandlerComposite();
@@ -163,6 +167,81 @@ public class HandlerMethodArgumentResolverTest extends BaseJunit4Test {
         MethodParameter mapMethodParameter = new MethodParameter(mapMethod, -1);
         composite.handleReturnValue(controller.testMap(), mapMethodParameter, mvContainer, null, null);
         Assert.assertEquals(mvContainer.getModel().getAttribute("testMap"), "zhudezhong");
+
+    }
+
+
+    /**
+     * 07的测试用例1
+     *
+     * @throws Exception
+     */
+    @Test
+    public void test4() throws Exception {
+        TestInvocableHandlerMethodController controller = new TestInvocableHandlerMethodController();
+
+        Method method = controller.getClass().getMethod("testRequestAndResponse",
+                HttpServletRequest.class, HttpServletResponse.class);
+
+        //初始化handlerMethod、HandlerMethodArgumentResolverComposite
+        HandlerMethod handlerMethod = new HandlerMethod(controller, method);
+        HandlerMethodArgumentResolverComposite argumentResolver = new HandlerMethodArgumentResolverComposite();
+        argumentResolver.addResolver(new ServletRequestMethodArgumentResolver());
+        argumentResolver.addResolver(new ServletResponseMethodArgumentResolver());
+
+        //本测试用例中使用不到返回值处理器和转换器，所以传入null
+        InvocableHandlerMethod inMethod = new InvocableHandlerMethod(handlerMethod, argumentResolver, null, null);
+
+        ModelAndViewContainer mvContainer = new ModelAndViewContainer();
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("name", "Silently9527"); //设置参数name
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        //开始调用控制器的方法testRequestAndResponse
+        inMethod.invokeAndHandle(request, response, mvContainer);
+
+        System.out.println("输出到前端的内容:");
+        System.out.println(response.getContentAsString());
+
+
+    }
+
+
+    /**
+     * 07的测试用例2
+     *
+     * @throws Exception
+     */
+    @Test
+    public void test5() throws Exception {
+        TestInvocableHandlerMethodController controller = new TestInvocableHandlerMethodController();
+
+        Method method = controller.getClass().getMethod("testViewName", Model.class);
+
+        //初始化handlerMethod、HandlerMethodArgumentResolverComposite
+        HandlerMethod handlerMethod = new HandlerMethod(controller, method);
+        HandlerMethodArgumentResolverComposite argumentResolver = new HandlerMethodArgumentResolverComposite();
+        argumentResolver.addResolver(new ModelMethodArgumentResolver());
+
+        HandlerMethodReturnValueHandlerComposite returnValueHandler = new HandlerMethodReturnValueHandlerComposite();
+        returnValueHandler.addReturnValueHandler(new ViewNameMethodReturnValueHandler());
+
+
+        InvocableHandlerMethod inMethod = new InvocableHandlerMethod(handlerMethod, argumentResolver, returnValueHandler, null);
+
+        ModelAndViewContainer mvContainer = new ModelAndViewContainer();
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        //开始调用控制器的方法testRequestAndResponse
+        inMethod.invokeAndHandle(request, response, mvContainer);
+
+        System.out.println("ModelAndViewContainer:");
+        System.out.println(JSON.toJSONString(mvContainer.getModel()));
+        System.out.println("viewName" + mvContainer.getViewName());
 
     }
 
