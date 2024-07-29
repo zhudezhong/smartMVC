@@ -2,12 +2,14 @@ package com.scnu.smartmvc.resolver;
 
 import com.alibaba.fastjson.JSON;
 import com.scnu.smartmvc.BaseJunit4Test;
+import com.scnu.smartmvc.ModelAndView;
 import com.scnu.smartmvc.controller.TestController;
 import com.scnu.smartmvc.controller.TestInvocableHandlerMethodController;
 import com.scnu.smartmvc.controller.TestReturnValueController;
 import com.scnu.smartmvc.hanler.HandlerMethod;
 import com.scnu.smartmvc.hanler.InvocableHandlerMethod;
 import com.scnu.smartmvc.hanler.ModelAndViewContainer;
+import com.scnu.smartmvc.hanler.adapter.RequestMappingHandlerAdapter;
 import com.scnu.smartmvc.hanler.argument.*;
 import com.scnu.smartmvc.hanler.returnvalue.*;
 import com.scnu.smartmvc.view.View;
@@ -242,6 +244,38 @@ public class HandlerMethodArgumentResolverTest extends BaseJunit4Test {
         System.out.println("ModelAndViewContainer:");
         System.out.println(JSON.toJSONString(mvContainer.getModel()));
         System.out.println("viewName" + mvContainer.getViewName());
+
+    }
+
+    /**
+     * 8、测试用例1
+     * <p>
+     * 目标：通过`RequestMappingHandlerAdapter`能成功的调用到控制器中的方法并且正确返回
+     *
+     * @throws NoSuchMethodException
+     */
+    @Test
+    public void test6() throws Exception {
+        TestInvocableHandlerMethodController controller = new TestInvocableHandlerMethodController();
+        Method method = controller.getClass().getMethod("testViewName", Model.class);
+        HandlerMethod handlerMethod = new HandlerMethod(controller, method);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+        DateFormatter dateFormatter = new DateFormatter();
+        dateFormatter.setPattern("yyyy-MM-dd HH:mm:ss");
+        conversionService.addFormatter(dateFormatter);
+
+        RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();
+        handlerAdapter.setConversionService(conversionService);
+        handlerAdapter.afterPropertiesSet();
+
+        ModelAndView modelAndView = handlerAdapter.handle(request, response, handlerMethod);
+
+        System.out.println("modelAndView: ");
+        System.out.println(JSON.toJSONString(modelAndView));
 
     }
 

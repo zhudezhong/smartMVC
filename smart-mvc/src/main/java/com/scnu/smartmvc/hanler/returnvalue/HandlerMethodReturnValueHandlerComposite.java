@@ -41,4 +41,8 @@ public class HandlerMethodReturnValueHandlerComposite implements HandlerMethodRe
     public void addReturnValueHandler(HandlerMethodReturnValueHandler... handlers) {
         Collections.addAll(this.returnValueHandlers, handlers);
     }
+
+    public void addReturnValueHandler(List<HandlerMethodReturnValueHandler> handlers) {
+        this.returnValueHandlers.addAll(handlers);
+    }
 }

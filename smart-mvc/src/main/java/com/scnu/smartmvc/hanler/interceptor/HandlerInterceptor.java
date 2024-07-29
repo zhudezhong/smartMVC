@@ -1,6 +1,6 @@
 package com.scnu.smartmvc.hanler.interceptor;
 
-import com.scnu.smartmvc.view.ModelAndView;
+import com.scnu.smartmvc.ModelAndView;
 import org.springframework.lang.Nullable;
 
 import javax.servlet.http.HttpServletRequest;

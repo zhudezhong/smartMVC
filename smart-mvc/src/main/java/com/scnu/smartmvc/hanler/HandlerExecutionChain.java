@@ -1,7 +1,7 @@
 package com.scnu.smartmvc.hanler;
 
 import com.scnu.smartmvc.hanler.interceptor.HandlerInterceptor;
-import com.scnu.smartmvc.view.ModelAndView;
+import com.scnu.smartmvc.ModelAndView;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;

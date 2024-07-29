@@ -46,11 +46,12 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
         Collections.addAll(this.argumentResolvers, resolvers);
     }
 
+    public void addResolver(List<HandlerMethodArgumentResolver> resolvers) {
+        this.argumentResolvers.addAll(resolvers);
+    }
+
     public void clear() {
         this.argumentResolvers.clear();
     }
 
-    public List<HandlerMethodArgumentResolver> getArgumentResolvers() {
-        return argumentResolvers;
-    }
 }

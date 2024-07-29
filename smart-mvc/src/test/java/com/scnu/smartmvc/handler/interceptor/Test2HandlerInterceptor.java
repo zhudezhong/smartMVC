@@ -1,7 +1,7 @@
 package com.scnu.smartmvc.handler.interceptor;
 
 import com.scnu.smartmvc.hanler.interceptor.HandlerInterceptor;
-import com.scnu.smartmvc.view.ModelAndView;
+import com.scnu.smartmvc.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

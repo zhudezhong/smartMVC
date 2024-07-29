@@ -1,6 +1,6 @@
 package com.scnu.smartmvc.hanler.interceptor;
 
-import com.scnu.smartmvc.view.ModelAndView;
+import com.scnu.smartmvc.ModelAndView;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 

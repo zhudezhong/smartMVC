@@ -39,6 +39,10 @@ public class ModelAndViewContainer {
         return (this.view instanceof String ? (String) this.view : null);
     }
 
+    public void setViewName(String viewName) {
+        this.view = viewName;
+    }
+
     public Model getModel() {
         if (Objects.isNull(this.model)) {
             this.model = new ExtendedModelMap();
