@@ -27,7 +27,6 @@ import org.springframework.ui.Model;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Map;
 
 
 public class HandlerMethodArgumentResolverTest extends BaseJunit4Test {
