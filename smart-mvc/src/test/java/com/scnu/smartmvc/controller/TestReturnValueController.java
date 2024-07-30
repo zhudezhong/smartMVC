@@ -2,6 +2,7 @@ package com.scnu.smartmvc.controller;
 
 import com.scnu.smartmvc.annotation.RequestBody;
 import com.scnu.smartmvc.annotation.ResponseBody;
+import com.scnu.smartmvc.view.RedirectView;
 import com.scnu.smartmvc.view.View;
 import com.scnu.smartmvc.vo.UserVO;
 import org.springframework.stereotype.Controller;
@@ -29,8 +30,7 @@ public class TestReturnValueController {
     }
 
     public View testView() {
-        return new View() {
-        };
+        return new RedirectView("/jsp/logout.jsp");
     }
 
     public Map<String, Object> testMap() {
