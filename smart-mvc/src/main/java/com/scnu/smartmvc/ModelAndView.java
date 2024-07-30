@@ -8,7 +8,7 @@ public class ModelAndView {
     private Model model;
     private HttpStatus status;
 
-    public Object getViewName() {
+    public String getViewName() {
         return (this.view instanceof String ? (String) this.view : null);
     }
 
