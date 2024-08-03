@@ -5,6 +5,8 @@ import com.scnu.smartmvc.handler.interceptor.Test2HandlerInterceptor;
 import com.scnu.smartmvc.handler.interceptor.TestHandlerInterceptor;
 import com.scnu.smartmvc.hanler.adapter.HandlerAdapter;
 import com.scnu.smartmvc.hanler.adapter.RequestMappingHandlerAdapter;
+import com.scnu.smartmvc.hanler.exception.ExceptionHandlerExceptionResolver;
+import com.scnu.smartmvc.hanler.exception.HandlerExceptionResolver;
 import com.scnu.smartmvc.hanler.interceptor.InterceptorRegistry;
 import com.scnu.smartmvc.hanler.interceptor.MappedInterceptor;
 import com.scnu.smartmvc.hanler.mapping.HandlerMapping;
@@ -81,6 +83,15 @@ public class AppConfig {
     @Bean
     public DispatcherServlet dispatcherServlet() {
         return new DispatcherServlet();
+    }
+
+    @Bean
+    public HandlerExceptionResolver handlerExceptionResolver(ConversionService conversionService) {
+        ExceptionHandlerExceptionResolver resolver = new ExceptionHandlerExceptionResolver();
+
+        resolver.setConversionService(conversionService);
+
+        return resolver;
     }
 
 

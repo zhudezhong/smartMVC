@@ -2,7 +2,7 @@ package com.scnu.smartmvc;
 
 import com.scnu.smartmvc.hanler.HandlerExecutionChain;
 import com.scnu.smartmvc.hanler.adapter.HandlerAdapter;
-import com.scnu.smartmvc.hanler.interceptor.HandlerInterceptor;
+import com.scnu.smartmvc.hanler.exception.HandlerExceptionResolver;
 import com.scnu.smartmvc.hanler.mapping.HandlerMapping;
 import com.scnu.smartmvc.utils.RequestContextHolder;
 import com.scnu.smartmvc.view.View;
@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 public class DispatcherServlet extends HttpServlet implements ApplicationContextAware {
@@ -30,6 +31,8 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
     private HandlerMapping handlerMapping;
     private HandlerAdapter handlerAdapter;
     private ViewResolver viewResolver;
+
+    private Collection<HandlerExceptionResolver> handlerExceptionResolvers;
 
 
     /**
@@ -43,6 +46,7 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
         this.handlerMapping = this.applicationContext.getBean(HandlerMapping.class);
         this.handlerAdapter = this.applicationContext.getBean(HandlerAdapter.class);
         this.viewResolver = this.applicationContext.getBean(ViewResolver.class);
+        this.handlerExceptionResolvers = this.applicationContext.getBeansOfType(HandlerExceptionResolver.class).values();
     }
 
     /**
@@ -61,6 +65,7 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("DispatcherServlet.service => uri: {}", request.getRequestURI());
+        // System.out.println("DispatcherServlet.service => uri: " + request.getRequestURI());
         RequestContextHolder.setRequest(request);
 
         try {
@@ -118,6 +123,18 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
         }
     }
 
+    /**
+     * 对返回的ModelAndView进行处理
+     * <p>
+     * 如果是正常的返回ModelAndView，那么就执行render方法，
+     * 如果在执行的过程中抛出了任何异常，那么就会执行`processHandlerException`，方便做全局异常处理
+     *
+     * @param request
+     * @param response
+     * @param mv
+     * @param ex
+     * @throws Exception
+     */
     private void processDispatchResult(HttpServletRequest request, HttpServletResponse response, ModelAndView mv, Exception ex) throws Exception {
 
         if (Objects.nonNull(ex)) {
@@ -127,8 +144,10 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
 
         if (Objects.nonNull(mv)) {
             render(mv, request, response);
+            return;
         }
 
+        logger.info("No view rendering, null ModelAndView returned. ");
     }
 
     /**
@@ -162,8 +181,21 @@ public class DispatcherServlet extends HttpServlet implements ApplicationContext
      * @param ex
      * @return
      */
-    private ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
-        return null;
+    private ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
+                                                 Exception ex) throws Exception {
+        if (CollectionUtils.isEmpty(this.handlerExceptionResolvers)) {
+            throw ex;
+        }
+
+        for (HandlerExceptionResolver resolver : this.handlerExceptionResolvers) {
+            ModelAndView exMv = resolver.resolveException(request, response, ex);
+
+            if (exMv != null) {
+                return exMv;
+            }
+        }
+        // 未找到对应的异常处理器，就继续抛出异常
+        throw ex;
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
+import java.io.IOException;
 
 public class DispatcherServletTest extends BaseJunit4Test {
 
@@ -28,9 +29,28 @@ public class DispatcherServletTest extends BaseJunit4Test {
 
         dispatcherServlet.service(request, response);
 
+        System.out.println("response: ");
         response.getHeaderNames().forEach(headerNames -> {
             System.out.println(headerNames + ":" + response.getHeader(headerNames));
         });
 
     }
+
+    @Test
+    public void test2() throws ServletException, IOException {
+        dispatcherServlet.init();
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("name", "zhangsan");
+        request.setRequestURI("/test/dispatch2");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        dispatcherServlet.service(request, response);
+
+        System.out.println("响应到客户端的数据：");
+        System.out.println(response.getContentAsString());
+
+    }
+
 }

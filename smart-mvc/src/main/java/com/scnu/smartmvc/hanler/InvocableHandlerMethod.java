@@ -7,10 +7,12 @@ import org.springframework.util.Assert;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,10 +46,22 @@ public class InvocableHandlerMethod extends HandlerMethod {
         this.conversionService = conversionService;
     }
 
+    public InvocableHandlerMethod(Object bean, Method method,
+                                  HandlerMethodArgumentResolverComposite argumentResolver,
+                                  HandlerMethodReturnValueHandlerComposite returnValueHandler,
+                                  ConversionService conversionService) {
+        super(bean, method);
+        this.argumentResolver = argumentResolver;
+        this.returnValueHandler = returnValueHandler;
+        this.conversionService = conversionService;
+    }
 
-    public void invokeAndHandle(HttpServletRequest request, HttpServletResponse response, ModelAndViewContainer mvContainer) throws Exception {
+    public void invokeAndHandle(HttpServletRequest request,
+                                HttpServletResponse response,
+                                ModelAndViewContainer mvContainer,
+                                Object... providedArgs) throws Exception {
         // 1、获取方法的参数
-        List<Object> args = this.getMethodArgumentValues(request, response, mvContainer);
+        List<Object> args = this.getMethodArgumentValues(request, response, mvContainer, providedArgs);
 
         // 2、通过反射调用Controller中的方法
         Object resultValue = doInvoke(args);
@@ -96,7 +110,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
      */
     private List<Object> getMethodArgumentValues(HttpServletRequest request,
                                                  HttpServletResponse response,
-                                                 ModelAndViewContainer mvContainer) throws Exception {
+                                                 ModelAndViewContainer mvContainer,
+                                                 Object... providedArgs) throws Exception {
 
         Assert.notNull(argumentResolver, "HandlerMethodArgumentResolver can not null");
         List<MethodParameter> parameters = this.getParameters();
@@ -106,10 +121,31 @@ public class InvocableHandlerMethod extends HandlerMethod {
         // 然后在通过参数解析器去找到想要的参数
         for (MethodParameter parameter : parameters) {
             parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+
+            Object arg = findProvidedArgument(parameter, providedArgs);
+
+            if (Objects.nonNull(arg)) {
+                args.add(arg);
+                continue;
+            }
+
             args.add(argumentResolver.resolveArgument(parameter, request, response, mvContainer, conversionService));
         }
 
         return args;
+    }
+
+    private Object findProvidedArgument(MethodParameter parameter, Object... providedArgs) {
+
+        if (!ObjectUtils.isEmpty(providedArgs)) {
+            for (Object providedArg : providedArgs) {
+                if (parameter.getParameterType().isInstance(providedArg)) {
+                    return providedArg;
+                }
+            }
+        }
+
+        return null;
     }
 
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
