@@ -1,6 +1,7 @@
 package com.scnu.smartmvc.config;
 
 import com.scnu.smartmvc.DispatcherServlet;
+import com.scnu.smartmvc.annotation.EnableWebMvc;
 import com.scnu.smartmvc.handler.interceptor.Test2HandlerInterceptor;
 import com.scnu.smartmvc.handler.interceptor.TestHandlerInterceptor;
 import com.scnu.smartmvc.hanler.adapter.HandlerAdapter;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Configuration
 @ComponentScan(basePackages = "com.scnu.smartmvc")
+@EnableWebMvc
 public class AppConfig {
 
     /**
@@ -48,51 +50,51 @@ public class AppConfig {
      * }
      **/
 
-    @Bean
-    public HandlerMapping handlerMapping() {
-        return new RequestMappingHandlerMapping();
-    }
-
-    @Bean
-    public HandlerAdapter handlerAdapter(ConversionService conversionService) {
-        RequestMappingHandlerAdapter adapter = new RequestMappingHandlerAdapter();
-        adapter.setConversionService(conversionService);
-
-        return adapter;
-    }
-
-    @Bean
-    public ViewResolver viewResolver() {
-        ContentNegotiatingViewResolver negotiatingViewResolver = new ContentNegotiatingViewResolver();
-        negotiatingViewResolver.setViewResolvers(Collections.singletonList(new InternalResourceViewResolver()));
-
-        return negotiatingViewResolver;
-    }
-
-    @Bean
-    ConversionService conversionService() {
-        DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
-        DateFormatter dateFormatter = new DateFormatter();
-        dateFormatter.setPattern("yy-MM-dd HH:mm:ss");
-
-        conversionService.addFormatter(dateFormatter);
-
-        return conversionService;
-    }
+//    @Bean
+//    public HandlerMapping handlerMapping() {
+//        return new RequestMappingHandlerMapping();
+//    }
+//
+//    @Bean
+//    public HandlerAdapter handlerAdapter(ConversionService conversionService) {
+//        RequestMappingHandlerAdapter adapter = new RequestMappingHandlerAdapter();
+//        adapter.setConversionService(conversionService);
+//
+//        return adapter;
+//    }
+//
+//    @Bean
+//    public ViewResolver viewResolver() {
+//        ContentNegotiatingViewResolver negotiatingViewResolver = new ContentNegotiatingViewResolver();
+//        negotiatingViewResolver.setViewResolvers(Collections.singletonList(new InternalResourceViewResolver()));
+//
+//        return negotiatingViewResolver;
+//    }
+//
+//    @Bean
+//    ConversionService conversionService() {
+//        DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+//        DateFormatter dateFormatter = new DateFormatter();
+//        dateFormatter.setPattern("yy-MM-dd HH:mm:ss");
+//
+//        conversionService.addFormatter(dateFormatter);
+//
+//        return conversionService;
+//    }
 
     @Bean
     public DispatcherServlet dispatcherServlet() {
         return new DispatcherServlet();
     }
 
-    @Bean
-    public HandlerExceptionResolver handlerExceptionResolver(ConversionService conversionService) {
-        ExceptionHandlerExceptionResolver resolver = new ExceptionHandlerExceptionResolver();
-
-        resolver.setConversionService(conversionService);
-
-        return resolver;
-    }
+//    @Bean
+//    public HandlerExceptionResolver handlerExceptionResolver(ConversionService conversionService) {
+//        ExceptionHandlerExceptionResolver resolver = new ExceptionHandlerExceptionResolver();
+//
+//        resolver.setConversionService(conversionService);
+//
+//        return resolver;
+//    }
 
 
 }
